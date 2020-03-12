@@ -43,7 +43,7 @@ def multi_tail_file(path_list,self):
        
 
 def tail_file(path,self):
-    p = subprocess.Popen('tail -f %s'%path,stdout= subprocess.PIPE)
+    p = subprocess.Popen('tail -f %s'%path,stdout= subprocess.PIPE,shell=True)
     start_now = datetime.datetime.now()
     record = False
     while p.poll() is None:
