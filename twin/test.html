@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WebSocket demo</title>
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    </head>
+    <body>
+        <script>
+
+class Director{
+    constructor(ws_url){
+        this.ws_url = ws_url
+        this.callback = {}
+        this.count = 0
+        this.events = {}
+        this.init_websocket()
+    }
+    init_websocket(){
+        this. ws = new WebSocket(this.ws_url)
+        console.log('链接websocket')
+        this.ws.onmessage =  (event)=> {
+            this.receive(event.data)
+//            var dc = JSON.parse(event.data)
+        };
+        this.connectd = new Promise((resolve,reject)=>{
+            this.ws.onopen = ()=>{
+                    resolve()
+             }
+        })
+    }
+    async send(data){
+        if(this.ws.readyState  ==WebSocket.CLOSED){
+            this.init_websocket()
+        }
+        await this.connectd
+        this.ws.send(data)
+    }
+    receive(data){
+        var dc = JSON.parse(data)
+        if(dc.event_name){
+            var event = this.events[dc.event_name]
+            var rt = event(dc.kws)
+            this.send( JSON.stringify( {call_id:dc.call_id,resp:rt} ))
+        }else{
+            this.callback[dc.count](dc.resp)
+            delete   this.callback[dc.count]
+        }
+    }
+    call(name,data){
+        this.count += 1
+        this.send(JSON.stringify({director_name:name,data:data,count: this.count} ) )
+        return new Promise((resolve,reject)=>{
+                this.callback[this.count] = resolve
+          })
+    }
+    regist(event_name,fun){
+//        this.call('regist_event',{event_name:event_name})
+        this.events[event_name] = fun
+    }
+}
+ window. py =new  Director("ws://127.0.0.1:5678/");
+function sub({a,b}){
+  return parseInt(a) - parseInt(b)
+}
+function multi({a,b}){
+    return parseInt(a) * parseInt(b)
+}
+function  log({msg}){
+    console.log(msg)
+    root.msg_list.push(msg)
+}
+
+py.regist('sub',sub)
+py.regist('log',log)
+py.regist('multi',multi)
+
+//            window. ws = new WebSocket("ws://127.0.0.1:5678/"),
+//            ws.onmessage = function (event) {
+//                var dc = JSON.parse(event.data)
+//
+//                console.log(event.data)
+//            };
+        </script>
+
+<script>
+
+$(function(){
+    window.root = new Vue({
+        el:"#there",
+        data(){
+            return {
+                a:'',
+                b:'',
+                msg_list:[],
+                myfile:''
+            }
+        },
+        watch:{
+            myfile(v){
+                py.call('read_file',{path:v}).then((resp)=>{
+                    console.log(resp)
+                })
+            }
+        },
+        methods:{
+            onclick(){
+                py.call('add',{a: this.a ,b:this.b}).then((resp)=>{
+                    console.log(resp)
+                    this.msg_list.push(resp)
+                })
+            },
+            print(){
+//                py.call('front_print',{})
+                py.call('alert',{msg:'参考'})
+            },
+            get_file(){
+                py.call('file_dialog',{}).then((resp)=>{
+                    this.msg_list.push(resp)
+                    return py.call('read_file',{path:resp})
+                }).then(resp=>{
+                    alert(resp)
+                })
+            }
+        }
+    })
+})
+
+</script>
+
+    <div id="there">
+        <input type="text" v-model="a">
+        <input type="text" v-model="b">
+        <button @click="onclick">点击</button>
+        <button @click="print">打印</button>
+        <button @click="get_file">获取文件</button>
+
+        <!--<input type="file" v-model="myfile">-->
+        <div>
+            <ul>
+                <li v-for="msg in msg_list">
+                    <span v-text="msg"></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    </body>
+</html>

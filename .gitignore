@@ -43,3 +43,5 @@ wingdbstub.py
 /src/db.sqlite3
 /try/web/jb_foot
 /work/flags
+*.log
+*.zip

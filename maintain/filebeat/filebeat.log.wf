@@ -1,0 +1,8 @@
+WARNING: 03-12 09:27:56: filebeat.py:332 * 9896 use default configure file: filebeat.json
+WARNING: 03-12 09:32:02: filebeat.py:332 * 8664 use default configure file: filebeat.json
+WARNING: 03-12 09:33:57: filebeat.py:332 * 12556 use default configure file: filebeat.json
+WARNING: 03-12 09:35:54: filebeat.py:332 * 18908 use default configure file: filebeat.json
+WARNING: 03-12 09:36:55: filebeat.py:332 * 1512 use default configure file: filebeat.json
+WARNING: 03-12 09:37:35: filebeat.py:332 * 3828 use default configure file: filebeat.json
+WARNING: 03-12 09:42:03: filebeat.py:334 * 12556 use default configure file: filebeat.json
+WARNING: 03-12 09:43:50: filebeat.py:334 * 1536 use default configure file: filebeat.json
