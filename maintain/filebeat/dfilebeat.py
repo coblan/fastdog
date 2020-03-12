@@ -4,7 +4,7 @@ import re
 from functools import partial
 import _thread
 import time
-from line_parser.django import join_line
+from .line_parser.django import join_line
 
 class DFileBeat(object):
     def __init__(self, harvest, parsers,outputs,beat_span=5):
