@@ -86,7 +86,7 @@ def datetime_timestamp(lines):
     return lines
 
 def elastice_search(host,user,pswd,index,self,lines):
-    from output.elastic import ELKHander
+    from . output.elastic import ELKHander
     
     if not hasattr(self,'es'):
         self.es = ELKHander(host,user,pswd,index)
