@@ -25,7 +25,7 @@ class DFileBeat(object):
                
     def beat(self):
         while True:
-            print('心跳')
+            #print('心跳')
             out_list = self.cache_list
             self.cache_list =[]
             if not out_list:
