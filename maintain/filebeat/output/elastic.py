@@ -7,6 +7,14 @@ import sys
 import logging
 general_log = logging.getLogger('general_log')
 
+
+def elastice_search(host,user,pswd,index,self,lines):
+    if not hasattr(self,'es'):
+        self.es = ELKHander(host,user,pswd,index)
+    print('发送elastic search')
+    self.es.send(lines)
+    
+
 class ELKHander(logging.Handler):
     def __init__(self,host, user,pswd,index):
         self.index = index

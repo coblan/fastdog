@@ -1,4 +1,7 @@
 import datetime
+from functools import partial
+from . share import strip_span,strip_word,decode_utf8
+
 def join_line(lines):
     '整理文件格式，拼接多行，整理不符合普通django格式的日志'
     out_lines = []
@@ -14,3 +17,15 @@ def join_line(lines):
         else:
             last_line['message'] += '\n%s'%line['message']
     return out_lines
+
+
+
+
+
+django_log_parsers =[
+                       decode_utf8,
+                       join_line,
+                       partial(strip_word,'level'),
+                       #partial(strip_span,'@timestamp',23), datetime_timestamp,
+                       
+                    ]
