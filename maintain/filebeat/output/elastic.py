@@ -68,7 +68,7 @@ class ELKHander(logging.Handler):
                     "_index": self.index,
                     "_type": "_doc",
                     "_source": {
-                        "level":line.get('level'),
+                        "level":line.get('level','NULL'),
                         "host":line.get('host',self.hostName),
                         "message":line.get('message'),
                         '@timestamp':line.get('@timestamp'),
