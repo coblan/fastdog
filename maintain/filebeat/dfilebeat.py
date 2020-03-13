@@ -82,7 +82,7 @@ def strip_span(field,span,lines):
 def datetime_timestamp(lines):
     beijin = datetime.timezone(datetime.timedelta(hours=8))
     for line in lines:
-        line['@timestamp'] = datetime.datetime.strptime(line['@timestamp'],'%Y-%m-%d %H:%M:%S,%f').astimezone(beijin)
+        line['@timestamp'] = datetime.datetime.strptime(line['@timestamp'],'%Y-%m-%d %H:%M:%S,%f').replace(tzinfo = beijin)
     return lines
 
 def elastice_search(host,user,pswd,index,self,lines):
