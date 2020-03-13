@@ -23,17 +23,33 @@ class ELKHander(logging.Handler):
         }
     
     def make_index(self):
-        _index_mappings = {
-            "mappings": {
-                "properties": { 
-                  "@timestamp":    { "type": "date"  }, 
-                  "level":     { "type": "text"  }, 
-                  "host": {"type": "text"},
-                  "message":      { "type": "text" }, 
-                  "path":{"type": "text"}
+        if self.es.info().get('version').get('number').startswith('7'):
+            _index_mappings = {
+                "mappings": {
+                    "properties": { 
+                      "@timestamp":    { "type": "date"  }, 
+                      "level":     { "type": "text"  }, 
+                      "host": {"type": "text"},
+                      "message":      { "type": "text" }, 
+                      "path":{"type": "text"}
+                    }
                 }
-            }
-          }
+              }
+        else:
+            _index_mappings = {
+                "mappings": {
+                    "_doc":{
+                        "properties": { 
+                            "@timestamp":    { "type": "date"  }, 
+                            "level":     { "type": "text"  }, 
+                            "host": {"type": "text"},
+                            "message":      { "type": "text" }, 
+                            "path":{"type": "text"}
+                          }
+                    }
+                }
+              }
+            
         if self.es.indices.exists(index= self.index ) is not True:
             res = self.es.indices.create(index = self.index, body=_index_mappings) 
     
