@@ -1,3 +1,5 @@
+import re
+import datetime
 
 def decode_utf8(lines):
     for line in lines:
