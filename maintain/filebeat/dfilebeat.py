@@ -51,38 +51,17 @@ def multi_tail_file(path_list,self):
                 break
             
     self.running_thread =[]
-    if sys.platform=='win32':
-        for path in path_list:
-            self.running_thread.append(
-                 _thread.start_new_thread(win_tail_file,(path, self))
-            )
-    else:
+    for path in path_list:
         self.running_thread.append(
-                 _thread.start_new_thread(linux_tail_file,(path_list, self))
-            )
-    
-       
+             _thread.start_new_thread(tail_file,(path, self))
+        )
 
-def linux_tail_file(path_list,self):
-    print('watching path_list:%s'%path_list)
-    path_str = ' '.join(path_list)
-    p = subprocess.Popen('tail -F %s'%path_str,stdout= subprocess.PIPE,shell=True)
-    start_now = datetime.datetime.now()
-    record = False
-    while p.poll() is None:
-        line = p.stdout.readline()
-        line_temp = line.strip()
-        if not record:
-            now = datetime.datetime.now()
-            if now- start_now > datetime.timedelta(seconds =2):
-                record = True
-                print('start recording')
-        if line_temp and record:
-            self.cache_list.append( {'path':path,'message':line}  )
-
-def win_tail_file(path,self):
+def tail_file(path,self):
     print('watching path:%s'%path)
-    p = subprocess.Popen('tail -f %s'%path,stdout= subprocess.PIPE,shell=True)
+    if sys.platform=='win32':
+        p = subprocess.Popen('tail -f %s'%path,stdout= subprocess.PIPE,shell=True)
+    else:
+        p = subprocess.Popen('tail -F %s'%path,stdout= subprocess.PIPE,shell=True)
     start_now = datetime.datetime.now()
     record = False
     while p.poll() is None:
