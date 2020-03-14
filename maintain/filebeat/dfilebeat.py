@@ -4,11 +4,12 @@ import re
 from functools import partial
 import _thread
 import time
+import sys
 from .line_parser.django import join_line
 from .line_parser.django import django_log_parsers
 from .line_parser.nginx import nginx_log_parser
-
 from .output.elastic import elastice_search
+import os
 
 class DFileBeat(object):
     def __init__(self, harvest, parsers,outputs,beat_span=5):
@@ -39,14 +40,47 @@ class DFileBeat(object):
 
 
 def multi_tail_file(path_list,self):
+    not_exist = True
+    while not_exist:
+        not_exist= False
+        for path in path_list:
+            if not os.path.exists(path):
+                print('%s not exist;check again after 2 seconds'%path)
+                not_exist = True
+                time.sleep(2)
+                break
+            
     self.running_thread =[]
-    for path in path_list:
+    if sys.platform=='win32':
+        for path in path_list:
+            self.running_thread.append(
+                 _thread.start_new_thread(win_tail_file,(path, self))
+            )
+    else:
         self.running_thread.append(
-             _thread.start_new_thread(tail_file,(path, self))
-        )
+                 _thread.start_new_thread(linux_tail_file,(path_list, self))
+            )
+    
        
 
-def tail_file(path,self):
+def linux_tail_file(path_list,self):
+    print('watching path_list:%s'%path_list)
+    path_str = ' '.join(path_list)
+    p = subprocess.Popen('tail -F %s'%path_str,stdout= subprocess.PIPE,shell=True)
+    start_now = datetime.datetime.now()
+    record = False
+    while p.poll() is None:
+        line = p.stdout.readline()
+        line_temp = line.strip()
+        if not record:
+            now = datetime.datetime.now()
+            if now- start_now > datetime.timedelta(seconds =2):
+                record = True
+                print('start recording')
+        if line_temp and record:
+            self.cache_list.append( {'path':path,'message':line}  )
+
+def win_tail_file(path,self):
     print('watching path:%s'%path)
     p = subprocess.Popen('tail -f %s'%path,stdout= subprocess.PIPE,shell=True)
     start_now = datetime.datetime.now()
