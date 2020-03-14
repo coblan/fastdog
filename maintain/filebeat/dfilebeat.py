@@ -32,10 +32,13 @@ class DFileBeat(object):
             if not out_list:
                 time.sleep(self.beat_span)
                 continue
-            for parser in self.parsers:
-                out_list = parser(out_list)
-            for output in self.outputs:
-                output(self,out_list)
+            try:
+                for parser in self.parsers:
+                    out_list = parser(out_list)
+                for output in self.outputs:
+                    output(self,out_list)
+            except Exception as e:
+                print('[ERROR]=======> parse or send log get Exception:%s'%str(e))
             time.sleep(self.beat_span)
 
 
