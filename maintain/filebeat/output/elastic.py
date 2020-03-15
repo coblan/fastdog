@@ -77,26 +77,26 @@ class ELKHander(logging.Handler):
             })
         helpers.bulk(self.es, actions)
     
-    def emit(self, record): 
-        msg =   record.getMessage()
-        if record.levelname == 'ERROR':
-            if record.exc_text:
-                msg += '\n' + record.exc_text
-            hostname= self.hostName
-        else:
-            dc = self.clean_hostname(msg)
-            msg =  dc.get('msg')
-            hostname = dc.get('hostname')
-        dc = {
-            '@timestamp': datetime.datetime.utcnow(),
-            'level': record.levelname,
-            'host': hostname , #self.hostName,
-            'message': msg, #msg
-        }
-        try:
-            res = self.es.index(self.index, doc_type='_doc', body = dc,request_timeout=100)
-        except Exception as e:
-            general_log.error('请求ELK出现了问题msg=%(msg)s,Exception= %(except)s' % {'msg':msg,'except':str(e)})
+    #def emit(self, record): 
+        #msg =   record.getMessage()
+        #if record.levelname == 'ERROR':
+            #if record.exc_text:
+                #msg += '\n' + record.exc_text
+            #hostname= self.hostName
+        #else:
+            #dc = self.clean_hostname(msg)
+            #msg =  dc.get('msg')
+            #hostname = dc.get('hostname')
+        #dc = {
+            #'@timestamp': datetime.datetime.utcnow(),
+            #'level': record.levelname,
+            #'host': hostname , #self.hostName,
+            #'message': msg, #msg
+        #}
+        #try:
+            #res = self.es.index(self.index, doc_type='_doc', body = dc,request_timeout=100)
+        #except Exception as e:
+            #general_log.error('请求ELK出现了问题msg=%(msg)s,Exception= %(except)s' % {'msg':msg,'except':str(e)})
 
 
 

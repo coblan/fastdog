@@ -1,6 +1,7 @@
 import datetime
 from functools import partial
 from . share import strip_span,strip_word,decode_utf8,datetime_timestamp
+import re
 
 def join_line(lines):
     '整理文件格式，拼接多行，整理不符合普通django格式的日志'
@@ -19,8 +20,15 @@ def join_line(lines):
     return out_lines
 
 
-
-
+def parse_process(lines):
+    for line in lines:
+        message = line['message']
+        message = message.lstrip()
+        mt = re.search('^\w*-\w*',message)
+        line['process'] = mt.group()
+        line['message'] = message[mt.end():]
+    return lines
+        
 
 django_log_parsers =[
                        decode_utf8,
@@ -29,3 +37,11 @@ django_log_parsers =[
                        partial(strip_span,'@timestamp',23), datetime_timestamp,
                        
                     ]
+
+django_process_parsers = [
+    decode_utf8,
+    join_line,
+    partial(strip_word,'level'),
+    partial(strip_span,'@timestamp',23), datetime_timestamp,
+    parse_process # 抽取 进程
+]

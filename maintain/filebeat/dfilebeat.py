@@ -6,10 +6,15 @@ import _thread
 import time
 import sys
 from .line_parser.django import join_line
-from .line_parser.django import django_log_parsers
+from .line_parser.django import django_log_parsers,django_process_parsers
 from .line_parser.nginx import nginx_log_parser
-from .output.elastic import elastice_search
+from .output.elastic_process import elasticesearch_process
+from . output.elastic import elastice_search
+
 import os
+import logging
+
+general_log = logging.getLogger('general_log')
 
 class DFileBeat(object):
     def __init__(self, harvest, parsers,outputs,beat_span=5):
@@ -38,7 +43,7 @@ class DFileBeat(object):
                 for output in self.outputs:
                     output(self,out_list)
             except Exception as e:
-                print('[ERROR]=======> parse or send log get Exception:%s'%str(e))
+                general_log.error('[ERROR]=======> parse or send log get Exception:%s'%str(e))
             time.sleep(self.beat_span)
 
 
@@ -48,7 +53,7 @@ def multi_tail_file(path_list,self):
         not_exist= False
         for path in path_list:
             if not os.path.exists(path):
-                print('%s not exist;check again after 2 seconds'%path)
+                general_log.info('%s not exist;check again after 2 seconds'%path)
                 not_exist = True
                 time.sleep(2)
                 break
@@ -60,7 +65,7 @@ def multi_tail_file(path_list,self):
         )
 
 def tail_file(path,self):
-    print('watching path:%s'%path)
+    general_log.debug('watching path:%s'%path)
     if sys.platform=='win32':
         p = subprocess.Popen('tail -f %s'%path,stdout= subprocess.PIPE,shell=True)
     else:
@@ -74,7 +79,7 @@ def tail_file(path,self):
             now = datetime.datetime.now()
             if now- start_now > datetime.timedelta(seconds =2):
                 record = True
-                print('start recording')
+                general_log.debug('start recording')
         if line_temp and record:
             self.cache_list.append( {'path':path,'message':line}  )
 
