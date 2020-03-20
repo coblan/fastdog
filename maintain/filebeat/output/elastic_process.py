@@ -13,10 +13,10 @@ class ELKProcess(ELKHander):
                 "mappings": {
                     "properties": { 
                       "@timestamp":    { "type": "date"  }, 
-                      "level":     { "type": "text"  }, 
-                      "host": {"type": "text"},
+                      "level":     { "type": "keyword"  }, 
+                      "host": {"type": "keyword"},
                       "message":      { "type": "text" }, 
-                      "path":{"type": "text"},
+                      "path":{"type": "keyword"},
                       "process":{"type": "text"},
                     }
                 }
@@ -27,10 +27,10 @@ class ELKProcess(ELKHander):
                     "_doc":{
                         "properties": { 
                             "@timestamp":    { "type": "date"  }, 
-                            "level":     { "type": "text"  }, 
-                            "host": {"type": "text"},
+                            "level":     { "type": "keyword"  }, 
+                            "host": {"type": "keyword"},
                             "message":      { "type": "text" }, 
-                            "path":{"type": "text"},
+                            "path":{"type": "keyword"},
                             "process":{"type": "text"},
                           }
                     }
