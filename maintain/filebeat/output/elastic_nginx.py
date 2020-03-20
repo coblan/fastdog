@@ -8,13 +8,13 @@ class ELKNginx(ELKHander):
                 "mappings": {
                     "properties": { 
                       "@timestamp":    { "type": "date"  }, 
-                      "level":     { "type": "text"  }, 
-                      "host": {"type": "text"},
+                      "level":     { "type": "keyword"  }, 
+                      "host": {"type": "keyword"},
                       "message":      { "type": "text" }, 
-                      "path":{"type": "text"},
+                      "path":{"type": "keyword"},
                       "url":{"type": "keyword"},
                       "ip":{"type": "ip"},
-                       "method":{"type": "text"},
+                       "method":{"type": "keyword"},
                     }
                 }
               }
@@ -24,13 +24,13 @@ class ELKNginx(ELKHander):
                     "_doc":{
                         "properties": { 
                             "@timestamp":    { "type": "date"  }, 
-                            "level":     { "type": "text"  }, 
-                            "host": {"type": "text"},
+                            "level":     { "type": "keyword"  }, 
+                            "host": {"type": "keyword"},
                             "message": { "type": "text" }, 
-                            "path":{"type": "text"},
+                            "path":{"type": "keyword"},
                             "url":{"type": "keyword"},
                             "ip":{"type": "ip"},
-                             "method":{"type": "text"},
+                             "method":{"type": "keyword"},
                           }
                     }
                 }

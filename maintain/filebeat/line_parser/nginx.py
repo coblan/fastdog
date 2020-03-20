@@ -41,10 +41,18 @@ def nginx_path(lines):
 
 
 nginx_log_parser = [
+    #decode_utf8,
+    ##get_ip,
+    ##partial(strip_span,'_no_use',5),
+    #nginx_datetime
+    
     decode_utf8,
-    #get_ip,
-    #partial(strip_span,'_no_use',5),
-    nginx_datetime
+    get_ip,
+    partial(strip_span,'_no_use',4),
+    nginx_datetime,
+    partial(strip_span,'_no_use',1),
+    partial(strip_word,'method'),
+    nginx_path,
 ]
 
 nginx_log_full_parser = [
