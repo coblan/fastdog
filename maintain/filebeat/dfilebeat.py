@@ -7,9 +7,10 @@ import time
 import sys
 from .line_parser.django import join_line
 from .line_parser.django import django_log_parsers,django_process_parsers
-from .line_parser.nginx import nginx_log_parser
+from .line_parser.nginx import nginx_log_parser,nginx_log_full_parser
 from .output.elastic_process import elasticesearch_process
-from . output.elastic import elastice_search
+from . output.elastic import elastice_output
+
 
 import os
 import logging
@@ -98,7 +99,7 @@ if __name__ =='__main__':
                        
                     ],
                    outputs = [
-                       partial(elastice_search,'z.enjoyst.com:9200','elastic','he27375089','beat-test')
+                       partial(elastice_output,'z.enjoyst.com:9200','elastic','he27375089','beat-test')
                    ] )
     pp.run()
     

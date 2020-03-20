@@ -28,11 +28,32 @@ def nginx_datetime(lines):
             line['message'] = messge[:mt.start(0)] + messge[mt.end(0): ]
     return lines
     
-    
+def nginx_path(lines):
+    pattern = r'[^\s]+'
+    for line in lines:
+        messge = line['message']
+        mt = re.search(pattern,messge)
+        if mt :
+            url = mt.group()
+            line['url'] = url
+            line['message'] = messge[:mt.start(0)] + messge[mt.end(0): ]
+    return lines
+
 
 nginx_log_parser = [
     decode_utf8,
     #get_ip,
     #partial(strip_span,'_no_use',5),
     nginx_datetime
+]
+
+nginx_log_full_parser = [
+    decode_utf8,
+    get_ip,
+    partial(strip_span,'_no_use',4),
+    nginx_datetime,
+    partial(strip_span,'_no_use',1),
+    partial(strip_word,'method'),
+    nginx_path,
+
 ]

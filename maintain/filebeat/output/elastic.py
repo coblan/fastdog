@@ -8,9 +8,9 @@ import logging
 general_log = logging.getLogger('general_log')
 
 
-def elastice_search(host,user,pswd,index,self,lines):
+def elastice_output(host,user,pswd,index,handerCls,self,lines):
     if not hasattr(self,'es'):
-        self.es = ELKHander(host,user,pswd,index)
+        self.es = handerCls(host,user,pswd,index)
     print('发送elastic search')
     self.es.send(lines)
     
