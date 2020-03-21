@@ -39,6 +39,14 @@ def nginx_path(lines):
             line['message'] = messge[:mt.start(0)] + messge[mt.end(0): ]
     return lines
 
+def nginx_agent(lines):
+    pattern = r'"([^"]*)"$'
+    for line in lines:
+        messge = line['message']
+        mt = re.search(pattern,messge)
+        if mt :
+            line['agent'] = mt.group(1)
+    return lines
 
 nginx_log_parser = [
     #decode_utf8,
@@ -54,7 +62,9 @@ nginx_log_parser = [
     partial(strip_span,'_no_use',1),
     partial(strip_word,'method'),
     nginx_path,
+    nginx_agent,
     recover_message,
+    
 ]
 
 nginx_log_full_parser = [
