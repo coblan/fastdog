@@ -47,14 +47,10 @@ nginx_log_parser = [
     #nginx_datetime
     
     decode_utf8,
+    nginx_datetime,
     save_message,
     get_ip,
     partial(strip_span,'_no_use',4),
-    recover_message,
-    
-    nginx_datetime,
-    
-    save_message,
     partial(strip_span,'_no_use',1),
     partial(strip_word,'method'),
     nginx_path,
