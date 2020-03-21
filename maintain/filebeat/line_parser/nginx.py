@@ -1,6 +1,6 @@
 import re
 from functools import partial
-from . share import decode_utf8,strip_word,strip_span
+from . share import decode_utf8,strip_word,strip_span,save_message,recover_message
 import re
 import datetime
 
@@ -47,12 +47,18 @@ nginx_log_parser = [
     #nginx_datetime
     
     decode_utf8,
+    save_message,
     get_ip,
     partial(strip_span,'_no_use',4),
+    recover_message,
+    
     nginx_datetime,
+    
+    save_message,
     partial(strip_span,'_no_use',1),
     partial(strip_word,'method'),
     nginx_path,
+    recover_message,
 ]
 
 nginx_log_full_parser = [
