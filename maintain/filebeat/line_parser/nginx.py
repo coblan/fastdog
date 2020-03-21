@@ -62,7 +62,7 @@ nginx_log_parser = [
     partial(strip_span,'_no_use',1),
     partial(strip_word,'method'),
     nginx_path,
-    #nginx_agent, 
+    nginx_agent, 
     recover_message,
     
 ]
