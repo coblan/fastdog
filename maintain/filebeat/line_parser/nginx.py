@@ -63,6 +63,7 @@ def ip_location(lines):
             'lat':response.location.latitude,
             'lon':response.location.longitude,
         }
+        line['city'] = response.city.name
     return lines
 
 nginx_log_parser = [
