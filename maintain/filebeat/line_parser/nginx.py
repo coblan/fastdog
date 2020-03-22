@@ -3,6 +3,11 @@ from functools import partial
 from . share import decode_utf8,strip_word,strip_span,save_message,recover_message
 import re
 import datetime
+import os
+if os.environ.get('geo_db'):
+    import geoip2.database
+    reader = geoip2.database.Reader(os.environ.get('geo_db') )
+    #reader = geoip2.database.Reader(r'D:\wok_file\program\GeoLite2-City.mmdb')
 
 def get_ip(lines):
     pattern = '^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
@@ -48,6 +53,18 @@ def nginx_agent(lines):
             line['agent'] = mt.group(1)
     return lines
 
+def ip_location(lines):
+    if not os.environ.get('geo_db'):
+        return lines
+    for line in lines:
+        ip = line['ip']
+        response = reader.city(ip)
+        line['location'] = {
+            'lat':response.location.latitude,
+            'lon':response.location.longitude,
+        }
+    return lines
+
 nginx_log_parser = [
     #decode_utf8,
     ##get_ip,
@@ -58,6 +75,7 @@ nginx_log_parser = [
     nginx_datetime,
     save_message,
     get_ip,
+    ip_location,
     partial(strip_span,'_no_use',4),
     partial(strip_span,'_no_use',1),
     partial(strip_word,'method'),

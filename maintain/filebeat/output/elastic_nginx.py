@@ -12,6 +12,7 @@ class ELKNginx(ELKHander):
             "ip":{"type": "ip"},
              "method":{"type": "keyword"},
              "agent":{"type":"keyword"},
+             "location":{"type":"geo_point"},
         }
         if self.es.info().get('version').get('number').startswith('7'):
             _index_mappings = {
@@ -48,6 +49,7 @@ class ELKNginx(ELKHander):
                         "ip":line.get('ip'),
                         "method":line.get('method'),
                         "agent":line.get('agent'),
+                        'location':line.get('location'),
                     }
             })
         helpers.bulk(self.es, actions)
