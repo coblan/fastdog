@@ -4,6 +4,9 @@ from . share import decode_utf8,strip_word,strip_span,save_message,recover_messa
 import re
 import datetime
 import os
+import requests
+import sqlite3
+
 if os.environ.get('geo_db'):
     import geoip2.database
     reader = geoip2.database.Reader(os.environ.get('geo_db') )
@@ -66,6 +69,55 @@ def ip_location(lines):
         line['city'] = response.city.name
     return lines
 
+
+def create_db():
+    db = os.environ.get('ip_db')
+    if not db:
+        return
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    create_table_sql= '''CREATE TABLE IF NOT EXISTS iptable
+             (ip text, city text, lat real, lon real)'''
+    c.execute(create_table_sql)
+    conn.commit()
+    conn.close()
+
+create_db()  
+    
+def ip_web_location(lines):
+    db = os.environ.get('ip_db')
+    if not db:
+        return
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    url = 'http://ip-api.com/json/%s'
+    for line in lines:
+        ip = line['ip']
+        dc = {}
+        find = False
+        for item in c.execute('select * from iptable where ip="%s"'%ip):
+            dc = {
+                'ip':item[0],
+                'city':item[1],
+                'lat':item[2],
+                'lon':item[3]
+            }
+            break
+        if not dc:
+            rt = requests.get(url%ip)
+            dc = rt.json()
+            c.execute('insert into iptable VALUES ("%s","%s",%s,%s)'%(ip,dc.get('city'),dc.get('lat'),dc.get('lon')))
+            conn.commit()
+        line['location'] = {
+            'lat':dc.get('lat'),
+            'lon':dc.get('lon'),
+        }
+        line['city'] = dc.get('city')
+    return lines
+    
+    
+    
+
 nginx_log_parser = [
     #decode_utf8,
     ##get_ip,
@@ -76,7 +128,8 @@ nginx_log_parser = [
     nginx_datetime,
     save_message,
     get_ip,
-    ip_location,
+    #ip_location,
+    ip_web_location,
     partial(strip_span,'_no_use',4),
     partial(strip_span,'_no_use',1),
     partial(strip_word,'method'),
