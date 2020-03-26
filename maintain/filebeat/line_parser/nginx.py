@@ -56,6 +56,16 @@ def nginx_agent(lines):
             line['agent'] = mt.group(1)
     return lines
 
+def location_router(lines):
+    baidu_ak = os.environ.get('baidu_ak')
+    ip_db = os.environ.get('ip_db')
+    if ip_db:
+        return ip_baidu_location(lines)
+    elif os.environ.get('geo_db'):
+        return ip_location(lines)
+    else:
+        return lines
+
 def ip_location(lines):
     if not os.environ.get('geo_db'):
         return lines
@@ -72,8 +82,6 @@ def ip_location(lines):
 
 def create_db():
     db = os.environ.get('ip_db')
-    if not db:
-        return
     conn = sqlite3.connect(db)
     c = conn.cursor()
     create_table_sql= '''CREATE TABLE IF NOT EXISTS iptable
@@ -81,10 +89,12 @@ def create_db():
     c.execute(create_table_sql)
     conn.commit()
     conn.close()
-
-create_db()  
+    
+if os.environ.get('ip_db'):
+    create_db()  
     
 def ip_web_location(lines):
+    "这个接口容易被封，涨停使用"
     db = os.environ.get('ip_db')
     if not db:
         return
@@ -115,6 +125,51 @@ def ip_web_location(lines):
         line['city'] = dc.get('city')
     return lines
     
+def ip_baidu_location(lines):
+    db = os.environ.get('ip_db')
+    baidu_ak = os.environ.get('baidu_ak')
+    
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    for line in lines:
+        ip = line['ip']
+        response = reader.city(ip)
+        if response.country.name != 'China':
+            line['location'] = {
+            'lat':response.location.latitude,
+            'lon':response.location.longitude,
+            }
+            line['city'] = response.city.name
+        else:
+            dc = {}
+            find = False
+            for item in c.execute('select * from iptable where ip="%s"'%ip):
+                dc = {
+                    'ip':item[0],
+                    'city':item[1],
+                    'lat':item[2],
+                    'lon':item[3]
+                }
+                break
+            if not dc:
+                """ {'address': 'CN|北京|北京|None|CDSNET|0|0', 
+                    'content': {'address': '北京市', 
+                        'address_detail': {'city': '北京市', 'city_code': 131, 'district': '', 'province': '北京市', 'street': '', 'street_number': ''}, 
+                        'point': {'x': '116.40387397', 'y': '39.91488908'}}, 
+                    'status': 0} """
+                url = 'http://api.map.baidu.com/location/ip?ak=%s&ip=%s&coor=bd09ll'%(baidu_ak,ip) #
+                rt = requests.get(url)
+                dc = rt.json()
+                c.execute('insert into iptable VALUES ("%s","%s",%s,%s)'%(ip,dc['content']['address_detail']['city'],
+                                                                          float( dc['content']['point']['y']),
+                                                                          float( dc['content']['point']['x'] )  ))
+                conn.commit()
+            line['location'] = {
+                'lat':dc.get('lat'),
+                'lon':dc.get('lon'),
+            }
+            line['city'] = dc.get('city')
+    return lines
     
     
 
@@ -128,8 +183,9 @@ nginx_log_parser = [
     nginx_datetime,
     save_message,
     get_ip,
+    location_router,
     #ip_location,
-    ip_web_location,
+    #ip_web_location,
     partial(strip_span,'_no_use',4),
     partial(strip_span,'_no_use',1),
     partial(strip_word,'method'),
