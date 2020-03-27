@@ -94,13 +94,14 @@ if os.environ.get('ip_db'):
     create_db()  
     
 def ip_web_location(lines):
-    "这个接口容易被封，涨停使用"
+    "无缓存，则切换为web请求"
     db = os.environ.get('ip_db')
     if not db:
         return
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    url = 'http://ip-api.com/json/%s'
+    #url = 'http://ip-api.com/json/%s'
+    url = os.environ.get('web_ip')
     for line in lines:
         ip = line['ip']
         dc = {}
@@ -114,8 +115,8 @@ def ip_web_location(lines):
             }
             break
         if not dc:
-            rt = requests.get(url%ip)
-            dc = rt.json()
+            rt = requests.get(url%{'ip':ip})
+            dc = rt.json().get('data')
             c.execute('insert into iptable VALUES ("%s","%s",%s,%s)'%(ip,dc.get('city'),dc.get('lat'),dc.get('lon')))
             conn.commit()
         line['location'] = {
@@ -183,9 +184,10 @@ nginx_log_parser = [
     nginx_datetime,
     save_message,
     get_ip,
-    location_router,
+    
+    #location_router,
     #ip_location,
-    #ip_web_location,
+    ip_web_location,
     partial(strip_span,'_no_use',4),
     partial(strip_span,'_no_use',1),
     partial(strip_word,'method'),
