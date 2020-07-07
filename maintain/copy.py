@@ -1,6 +1,7 @@
 import os
 import zipfile
 import invoke
+import shutil
 local = invoke.Context()
 base_dir = os.path.dirname(__file__)
 
@@ -27,6 +28,10 @@ def copy(src_root,target_root,filters=[]):
                     break
             if check_passed:
                 fl_path = os.path.join(root, fl)
+                try:
+                    os.makedirs(os.path.join(target_root, rel_path))
+                except Exception:
+                    pass
                 target_path = os.path.join(target_root, rel_path, fl)
                 shutil.copy(fl_path, target_path)
                 print(target_path)
@@ -41,7 +46,7 @@ def copy(src_root,target_root,filters=[]):
                     break
             if check_passed:
                 left_dirs.append(d_item)
-        dirs[:] = [d for d in dirs if left_dirs(d)]
+        dirs[:] = left_dirs #[d for d in dirs if left_dirs(d)]
         for d in dirs:
             target_dir_path = os.path.join(target_root, rel_path, d)
             if not os.path.exists(target_dir_path):
@@ -58,6 +63,8 @@ class PythonFilter(object):
             return True
     
     def check_dir(self,path,name):
+        if name == '__pycache__':
+            return False
         return True
 
 class JsFilter(object):
