@@ -46,14 +46,13 @@ class DFileBeat(object):
                         output.send(out_list)
                     else:
                         output(self,out_list)
-                    
-                        
-                    
-            except UserWarning as e:
-                print(e)
-                print('debug syntax')
-            #except Exception as e:
-                #general_log.error('[ERROR]=======> parse or send log get Exception:%s'%str(e))
+ 
+            #except UserWarning as e:
+                #print(e)
+                #print('debug syntax')
+            except Exception as e:
+                general_log.debug(out_list)
+                general_log.error('[ERROR]=======> parse or send log get Exception:%s'%str(e))
                
             time.sleep(self.beat_span)
 
