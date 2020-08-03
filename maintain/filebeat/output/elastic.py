@@ -7,13 +7,18 @@ import sys
 import logging
 general_log = logging.getLogger('general_log')
 
-
 def elastice_output(host,user,pswd,index,handerCls,self,lines):
     if not hasattr(self,'es'):
         self.es = handerCls(host,user,pswd,index)
     print('发送elastic search')
     self.es.send(lines)
-    
+
+#class ElasticeSender(object):
+    #def __init__(self, host,user,pswd,index,handerCls):
+        #pass
+    #def send(self):
+        #pass
+
 
 class ELKHander(logging.Handler):
     def __init__(self,host, user,pswd,index):

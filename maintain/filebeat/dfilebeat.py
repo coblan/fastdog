@@ -10,7 +10,7 @@ from .line_parser.django import django_log_parsers,django_process_parsers
 from .line_parser.nginx import nginx_log_parser,nginx_log_full_parser
 from .output.elastic_process import elasticesearch_process
 from . output.elastic import elastice_output
-
+import inspect
 
 import os
 import logging
@@ -42,22 +42,42 @@ class DFileBeat(object):
                 for parser in self.parsers:
                     out_list = parser(out_list)
                 for output in self.outputs:
-                    output(self,out_list)
-            except Exception as e:
-                general_log.error('[ERROR]=======> parse or send log get Exception:%s'%str(e))
+                    if hasattr(output,'send'):
+                        output.send(out_list)
+                    else:
+                        output(self,out_list)
+                    
+                        
+                    
+            except UserWarning as e:
+                print(e)
+                print('debug syntax')
+            #except Exception as e:
+                #general_log.error('[ERROR]=======> parse or send log get Exception:%s'%str(e))
+               
             time.sleep(self.beat_span)
 
 
 def multi_tail_file(path_list,self):
-    not_exist = True
-    while not_exist:
-        not_exist= False
-        for path in path_list:
-            if not os.path.exists(path):
-                general_log.info('%s not exist;check again after 2 seconds'%path)
-                not_exist = True
-                time.sleep(2)
-                break
+    for path in path_list:
+        if not os.path.exists(path):
+            pathdir = os.path.dirname(path)
+            try:
+                os.makedirs(pathdir)
+            except:
+                pass
+            with open(path,'w') as f:
+                pass
+            
+    #not_exist = True
+    #while not_exist:
+        #not_exist= False
+        #for path in path_list:
+            #if not os.path.exists(path):
+                #general_log.info('%s not exist;check again after 2 seconds'%path)
+                #not_exist = True
+                #time.sleep(2)
+                #break
             
     self.running_thread =[]
     for path in path_list:
