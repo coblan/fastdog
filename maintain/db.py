@@ -8,7 +8,9 @@ def read_cursor(cursor):
     return rows
 
 def write_cursor(src_cursor,dst_cursor,table):
-    
+    """将一个cusor的数据直接写入另外一个cusor 
+    主要用于导数据
+    """ 
     keys = [head[0] for head in src_cursor.description]
     sql_data = []
     for row in src_cursor:
