@@ -6,7 +6,7 @@ import datetime
 import sys
 import logging
 general_log = logging.getLogger('general_log')
-
+import json
 
 class MysqlHander(logging.Handler):
     def __init__(self,host,port, user,pswd,db_name):
@@ -20,12 +20,6 @@ class MysqlHander(logging.Handler):
         self.hostName = socket.gethostname()
         super().__init__()
         #print('elk-log1')
-    
-    def clean_hostname(self,msg):
-        return {
-            'msg':msg,
-            'hostname':self.hostName
-        }
 
     def send(self,lines):
         actions=[ ]
@@ -39,6 +33,23 @@ class MysqlHander(logging.Handler):
             with self.connection.cursor() as cursor:
                 cursor.executemany("insert into act_log_generallog(createtime, level ,message,path,process,host) values (%s, %s,%s,%s,%s,%s)", ls )
                 self.connection.commit()        
-    
+
+class TableMysqlHander(MysqlHander):
+    def send(self,lines):
+        actions=[ ]
+        ls =[]
+        for line in lines:
+            message = line.get('message','{}')
+            msg_dc = json.loads(message)
+            model = msg_dc.pop('model','')
+            user = msg_dc.pop('user','')
+            ls.append(
+                [line.get('@timestamp'),model,json.dumps(msg_dc,ensure_ascii=False),user]
+                ) 
+            
+        if ls: 
+            with self.connection.cursor() as cursor:
+                cursor.executemany("insert into act_log_backendoperation(createtime, model, content , createuser) values (%s,%s,%s,%s)", ls )
+                self.connection.commit()       
 
 
