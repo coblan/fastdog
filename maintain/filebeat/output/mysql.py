@@ -10,7 +10,7 @@ import json
 
 class MysqlHander(logging.Handler):
     def __init__(self,host,port, user,pswd,db_name):
-        self.connection = pymysql.connect(
+        self.mysql = pymysql.connect(
             host=host,
                port=int(port),
                user=user,
@@ -20,6 +20,12 @@ class MysqlHander(logging.Handler):
         self.hostName = socket.gethostname()
         super().__init__()
         #print('elk-log1')
+    
+    @property
+    def connection(self):
+        if not self.mysql.open:
+            self.mysql.ping(reconnect=True)
+        return self.mysql
 
     def send(self,lines):
         actions=[ ]
