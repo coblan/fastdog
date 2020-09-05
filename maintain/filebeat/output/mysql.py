@@ -23,7 +23,9 @@ class MysqlHander(logging.Handler):
     
     @property
     def connection(self):
+        general_log.debug('read mysql connection property')
         if not self.mysql.open:
+            general_log.debug('into mysql reconnect')
             self.mysql.ping(reconnect=True)
         return self.mysql
 
