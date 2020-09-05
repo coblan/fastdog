@@ -40,7 +40,7 @@ class MysqlHander(logging.Handler):
         if ls: 
             with self.connection.cursor() as cursor:
                 cursor.executemany("insert into act_log_generallog(createtime, level ,message,path,process,host) values (%s, %s,%s,%s,%s,%s)", ls )
-                self.connection.commit()        
+                self.mysql.commit()        
 
 class TableMysqlHander(MysqlHander):
     def send(self,lines):
