@@ -58,6 +58,6 @@ class TableMysqlHander(MysqlHander):
         if ls: 
             with self.connection.cursor() as cursor:
                 cursor.executemany("insert into act_log_backendoperation(createtime, model, content , createuser) values (%s,%s,%s,%s)", ls )
-                self.connection.commit()       
+                self.mysql.commit()       
 
 
