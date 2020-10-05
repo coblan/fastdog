@@ -53,18 +53,25 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length)
         data = json.loads(post_data)
         if self.path.startswith('/dapi/'):
-            key = self.path[6:]
-            rt = director_views[key](**data)
-            if rt is not None:
-                outdata = json.dumps(rt,ensure_ascii=False)
-            else:
-                outdata = "{}"
+            try:
+                key = self.path[6:]
+                rt = director_views[key](**data)
+                if rt is not None:
+                    outdata = rt
+                else:
+                    outdata = {}
+            except UserWarning as e:
+                outdata = {
+                    'msg':str(e),
+                    'success':False,
+                }
+            outjson = json.dumps(outdata,ensure_ascii=False)
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.send_header('Access-Control-Allow-Credentials', 'true')
             self.send_header('Access-Control-Allow-Origin', '*')            
             self.end_headers()             
-            self.wfile.write(outdata.encode('utf-8'))
+            self.wfile.write(outjson.encode('utf-8'))
         else:
             self.send_error(404,'api Not Found: %s' % self.path)
 
