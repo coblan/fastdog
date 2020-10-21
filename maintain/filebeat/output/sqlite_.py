@@ -59,7 +59,9 @@ class TableSqliteHander(SqliteHander):
                         content += '%s=%s;'%(k,v)
             else:
                 content = json.dumps(msg_dc,ensure_ascii=False)
-            inst_pk = msg_dc.get('pk','')
+        
+            inst_pk =  msg_dc.get('pk','') 
+            
             op= msg_dc.get('kind','')
             
             ls.append(
