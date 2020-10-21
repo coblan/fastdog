@@ -51,9 +51,10 @@ class TableSqliteHander(SqliteHander):
                 label_dc = msg_dc.get('_label')
                 content = ''
                 for k,v in after.items():
-                    if k in label_dc:
-                        if k != 'pk':
-                            content += '%s=%s;'%(label_dc.get(k),v)
+                    if k == 'pk':
+                        continue
+                    elif k in label_dc:
+                        content += '%s=%s;'%(label_dc.get(k),v)
                     else:
                         content += '%s=%s;'%(k,v)
             else:
