@@ -8,8 +8,6 @@ import sys
 from .line_parser.django import join_line
 from .line_parser.django import django_log_parsers,django_process_parsers
 from .line_parser.nginx import nginx_log_parser,nginx_log_full_parser
-from .output.elastic_process import elasticesearch_process
-from . output.elastic import elastice_output
 import inspect
 
 import os
@@ -105,6 +103,7 @@ def tail_file(path,self):
 
 
 if __name__ =='__main__':
+    from . output.elastic import elastice_output
     pp = DFileBeat(harvest= partial(multi_tail_file,
                                     [
                                         r'D:\coblan\py3\fastdog\maintain\filebeat\test_ok.log',
