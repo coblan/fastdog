@@ -7,6 +7,7 @@ import sys
 import logging
 general_log = logging.getLogger('general_log')
 import json
+from .sqlite_ import SqliteHander,TableSqliteHander
 
 class MysqlHander(logging.Handler):
     def __init__(self,host,port, user,pswd,db_name):
@@ -61,17 +62,22 @@ class MysqlHander(logging.Handler):
             self.conn.commit()        
 
 class TableMysqlHander(MysqlHander):
+    
+    def get_sql_list(self,lines):
+        return TableSqliteHander.get_sql_list(self,lines)
+    
     def send(self,lines):
-        actions=[ ]
-        ls =[]
-        for line in lines:
-            message = line.get('message','{}')
-            msg_dc = json.loads(message)
-            model = msg_dc.pop('model','')
-            user = msg_dc.pop('user','')
-            ls.append(
-                [line.get('@timestamp'),model,json.dumps(msg_dc,ensure_ascii=False),user]
-                ) 
+        ls = self.get_sql_list(lines)
+        #actions=[ ]
+        #ls =[]
+        #for line in lines:
+            #message = line.get('message','{}')
+            #msg_dc = json.loads(message)
+            #model = msg_dc.pop('model','')
+            #user = msg_dc.pop('user','')
+            #ls.append(
+                #[line.get('@timestamp'),model,json.dumps(msg_dc,ensure_ascii=False),user]
+                #) 
             
         if ls: 
             #with self.connection.cursor() as cursor:
