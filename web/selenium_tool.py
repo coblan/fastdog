@@ -2,6 +2,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait,TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.common import exceptions
+import time
 
 def switch_to_title(driver,title):
     findList=[]
@@ -31,10 +33,34 @@ def visible(driver,selector,timeout=10):
         EC.visibility_of_element_located((By.CSS_SELECTOR, selector))
     ) 
 
-def wn_clickable(driver,selector=None,timeout=10,):
+def wait_click(driver,selector=None,element=None,timeout=10,):
+    if element:
+        try:
+            element.click()
+        except Exception  as e:
+            if timeout < 0:
+                raise UserWarning('等待超时')
+            else:
+                time.sleep(0.8)
+                wait_click(driver,element=element,timeout = timeout-0.8)
+
+def waite_clickable(driver,selector=None,timeout=10,):
+    #if selector:
     element = WebDriverWait(driver, timeout).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, selector))
-    )  
+    ) 
+    #elif element:
+        ##element = WebDriverWait(driver, timeout).until(
+            ##EC.element_to_be_clickable((By.ID, element.id))
+        ##)         
+        #count = 0
+        #if element.is_displayed() and element.is_enabled():
+            #return True
+        #else:
+            #time.sleep(0.8)
+            #count += 0.8
+            #if count > timeout:
+                #raise UserWarning('超时')
     
 #def wn_inputable(driver,selector,timeout=10):
     #element = WebDriverWait(driver, timeout).until(
