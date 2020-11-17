@@ -73,7 +73,7 @@ class TableSqliteHander(SqliteHander):
             ls.append(
                 [line.get('@timestamp'),model,content,user,inst_pk,op]
                 ) 
-            return ls
+        return ls
     
     def send(self,lines):
         ls = self.get_sql_list(lines)
