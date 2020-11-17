@@ -50,7 +50,8 @@ class DFileBeat(object):
                 #print('debug syntax')
             except Exception as e:
                 general_log.debug(out_list)
-                general_log.error('[ERROR]=======> parse or send log get Exception:%s'%str(e))
+                general_log.error('[ERROR]=======> parse or send log get Exception')
+                general_log.error(e,exc_info=True)                
                
             time.sleep(self.beat_span)
 
