@@ -44,7 +44,8 @@ class ELKHander(logging.Handler):
                       "level":     { "type": "text"  }, 
                       "host": {"type": "text"},
                       "message":      { "type": "text" }, 
-                      "path":{"type": "text"}
+                      "path": {"type": "text"},
+                      "process":{"type": "text"},
                     }
                 }
               }
@@ -57,7 +58,8 @@ class ELKHander(logging.Handler):
                             "level":     { "type": "text"  }, 
                             "host": {"type": "text"},
                             "message":      { "type": "text" }, 
-                            "path":{"type": "text"}
+                            "path":{"type": "text"},
+                            "process":{"type": "text"},
                           }
                     }
                 }
@@ -77,7 +79,8 @@ class ELKHander(logging.Handler):
                         "host":line.get('host',self.hostName),
                         "message":line.get('message'),
                         '@timestamp':line.get('@timestamp'),
-                        "path":line.get('path')
+                        "path":line.get('path'),
+                        'process':line.get('process'),
                     }
             })
         helpers.bulk(self.es, actions)
