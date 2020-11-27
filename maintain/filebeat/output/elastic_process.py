@@ -7,6 +7,9 @@ def elasticesearch_process(host,user,pswd,index,self,lines):
     self.es.send(lines)
     
 class ELKProcess(ELKHander):
+    def __init__(self, *args,**kws):
+        super().__init__(*args,**kws)
+        self.offset = 0
     def make_index(self):
         if self.es.info().get('version').get('number').startswith('7'):
             _index_mappings = {
@@ -18,6 +21,7 @@ class ELKProcess(ELKHander):
                       "message":      { "type": "text" }, 
                       "path":{"type": "keyword"},
                       "process":{"type": "text"},
+                      "offset":{"type": "integer"},
                     }
                 }
               }
@@ -32,6 +36,7 @@ class ELKProcess(ELKHander):
                             "message":      { "type": "text" }, 
                             "path":{"type": "keyword"},
                             "process":{"type": "text"},
+                            "offset":{"type": "integer"},
                           }
                     }
                 }
@@ -43,6 +48,7 @@ class ELKProcess(ELKHander):
     def send(self,lines):
         actions=[ ]
         for line in lines:
+            self.offset +=1
             actions.append({
                     "_index": self.index,
                     "_type": "_doc",
@@ -53,6 +59,7 @@ class ELKProcess(ELKHander):
                         '@timestamp':line.get('@timestamp'),
                         "path":line.get('path'),
                         "process":line.get('process'),
+                        "offset":self.offset,
                     }
             })
         helpers.bulk(self.es, actions)
