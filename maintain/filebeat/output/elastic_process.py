@@ -60,4 +60,6 @@ class ELKProcess(ELKHander):
                         "offset":self.offset,
                     }
             })
+        # 7版本的kibana不能正确识别offset，这里颠倒一下插入顺序，期望能够解决问题。
+        actions.reverse()
         helpers.bulk(self.es, actions)
