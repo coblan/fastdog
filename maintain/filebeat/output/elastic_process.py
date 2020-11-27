@@ -7,9 +7,7 @@ def elasticesearch_process(host,user,pswd,index,self,lines):
     self.es.send(lines)
     
 class ELKProcess(ELKHander):
-    def __init__(self, *args,**kws):
-        super().__init__(*args,**kws)
-        self.offset = 0
+
     def make_index(self):
         if self.es.info().get('version').get('number').startswith('7'):
             _index_mappings = {
