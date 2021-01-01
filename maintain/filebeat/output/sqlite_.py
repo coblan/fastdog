@@ -43,31 +43,37 @@ class TableSqliteHander(SqliteHander):
         ls =[]
         for line in lines:
             message = line.get('message','{}')
-            msg_dc = json.loads(message)
-            model = msg_dc.pop('model','')
-            user = msg_dc.pop('user','')
-            if msg_dc.get('_after') and msg_dc.get('_label'):
-                after = msg_dc.get('_after')
-                label_dc = msg_dc.get('_label')
-                content = ''
-                for k,v in after.items():
-                    if k == 'pk':
-                        continue
-                    elif k in label_dc:
-                        content += '%s=%s;'%(label_dc.get(k),v)
-                    else:
-                        content += '%s=%s;'%(k,v)
-            else:
-                content = json.dumps(msg_dc,ensure_ascii=False)
-        
-            inst_pk =  msg_dc.get('pk','') 
+            try:
+                msg_dc = json.loads(message)
+                model = msg_dc.pop('model','')
+                user = msg_dc.pop('user','')
+                if msg_dc.get('_after') and msg_dc.get('_label'):
+                    after = msg_dc.get('_after')
+                    label_dc = msg_dc.get('_label')
+                    content = ''
+                    for k,v in after.items():
+                        if k == 'pk':
+                            continue
+                        elif k in label_dc:
+                            content += '%s=%s;'%(label_dc.get(k),v)
+                        else:
+                            content += '%s=%s;'%(k,v)
+                else:
+                    content = json.dumps(msg_dc,ensure_ascii=False)
             
-            op= msg_dc.get('kind','')
-            
+                inst_pk =  msg_dc.get('pk','') 
+                
+                op= msg_dc.get('kind','')
+            except Exception as e:
+                content=message
+                model =''
+                user=''
+                inst_pk = ''
+                op = ''
             ls.append(
                 [line.get('@timestamp'),model,content,user,inst_pk,op]
                 ) 
-            return ls
+        return ls
     
     def send(self,lines):
         ls = self.get_sql_list(lines)

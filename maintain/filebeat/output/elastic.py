@@ -26,6 +26,7 @@ class ELKHander(logging.Handler):
         self.es = Elasticsearch(host,http_auth=(user,pswd ),timeout=100,max_retries=3)
         self.make_index()
         self.hostName = socket.gethostname()
+        self.offset = 0
         super().__init__()
         #print('elk-log1')
     
@@ -44,7 +45,8 @@ class ELKHander(logging.Handler):
                       "level":     { "type": "text"  }, 
                       "host": {"type": "text"},
                       "message":      { "type": "text" }, 
-                      "path":{"type": "text"}
+                      "path": {"type": "text"},
+                       "offset":{"type": "integer"},
                     }
                 }
               }
@@ -57,7 +59,8 @@ class ELKHander(logging.Handler):
                             "level":     { "type": "text"  }, 
                             "host": {"type": "text"},
                             "message":      { "type": "text" }, 
-                            "path":{"type": "text"}
+                            "path":{"type": "text"},
+                             "offset":{"type": "integer"},
                           }
                     }
                 }
@@ -69,6 +72,7 @@ class ELKHander(logging.Handler):
     def send(self,lines):
         actions=[ ]
         for line in lines:
+            self.offset += 1
             actions.append({
                     "_index": self.index,
                     "_type": "_doc",
@@ -77,7 +81,8 @@ class ELKHander(logging.Handler):
                         "host":line.get('host',self.hostName),
                         "message":line.get('message'),
                         '@timestamp':line.get('@timestamp'),
-                        "path":line.get('path')
+                        "path":line.get('path'),
+                        "offset":self.offset,
                     }
             })
         helpers.bulk(self.es, actions)
