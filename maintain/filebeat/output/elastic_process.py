@@ -7,17 +7,19 @@ def elasticesearch_process(host,user,pswd,index,self,lines):
     self.es.send(lines)
     
 class ELKProcess(ELKHander):
+
     def make_index(self):
         if self.es.info().get('version').get('number').startswith('7'):
             _index_mappings = {
                 "mappings": {
                     "properties": { 
                       "@timestamp":    { "type": "date"  }, 
-                      "level":     { "type": "text"  }, 
-                      "host": {"type": "text"},
+                      "level":     { "type": "keyword"  }, 
+                      "host": {"type": "keyword"},
                       "message":      { "type": "text" }, 
-                      "path":{"type": "text"},
+                      "path":{"type": "keyword"},
                       "process":{"type": "text"},
+                      "offset":{"type": "integer"},
                     }
                 }
               }
@@ -27,11 +29,12 @@ class ELKProcess(ELKHander):
                     "_doc":{
                         "properties": { 
                             "@timestamp":    { "type": "date"  }, 
-                            "level":     { "type": "text"  }, 
-                            "host": {"type": "text"},
+                            "level":     { "type": "keyword"  }, 
+                            "host": {"type": "keyword"},
                             "message":      { "type": "text" }, 
-                            "path":{"type": "text"},
+                            "path":{"type": "keyword"},
                             "process":{"type": "text"},
+                            "offset":{"type": "integer"},
                           }
                     }
                 }
@@ -43,6 +46,7 @@ class ELKProcess(ELKHander):
     def send(self,lines):
         actions=[ ]
         for line in lines:
+            self.offset +=1
             actions.append({
                     "_index": self.index,
                     "_type": "_doc",
@@ -53,6 +57,9 @@ class ELKProcess(ELKHander):
                         '@timestamp':line.get('@timestamp'),
                         "path":line.get('path'),
                         "process":line.get('process'),
+                        "offset":self.offset,
                     }
             })
+        # 7版本的kibana不能正确识别offset，这里颠倒一下插入顺序，期望能够解决问题。
+        actions.reverse()
         helpers.bulk(self.es, actions)

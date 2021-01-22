@@ -28,3 +28,13 @@ def datetime_timestamp(lines):
     for line in lines:
         line['@timestamp'] = datetime.datetime.strptime(line['@timestamp'],'%Y-%m-%d %H:%M:%S,%f').replace(tzinfo = beijin)
     return lines
+
+def save_message(lines):
+    for line in lines:
+        line['_message'] = line['message']
+    return lines
+
+def recover_message(lines):
+    for line in lines:
+        line['message'] = line['_message']
+    return lines

@@ -7,13 +7,18 @@ import sys
 import logging
 general_log = logging.getLogger('general_log')
 
-
-def elastice_search(host,user,pswd,index,self,lines):
+def elastice_output(host,user,pswd,index,handerCls,self,lines):
     if not hasattr(self,'es'):
-        self.es = ELKHander(host,user,pswd,index)
+        self.es = handerCls(host,user,pswd,index)
     print('发送elastic search')
     self.es.send(lines)
-    
+
+#class ElasticeSender(object):
+    #def __init__(self, host,user,pswd,index,handerCls):
+        #pass
+    #def send(self):
+        #pass
+
 
 class ELKHander(logging.Handler):
     def __init__(self,host, user,pswd,index):
@@ -21,6 +26,7 @@ class ELKHander(logging.Handler):
         self.es = Elasticsearch(host,http_auth=(user,pswd ),timeout=100,max_retries=3)
         self.make_index()
         self.hostName = socket.gethostname()
+        self.offset = 0
         super().__init__()
         #print('elk-log1')
     
@@ -39,7 +45,8 @@ class ELKHander(logging.Handler):
                       "level":     { "type": "text"  }, 
                       "host": {"type": "text"},
                       "message":      { "type": "text" }, 
-                      "path":{"type": "text"}
+                      "path": {"type": "text"},
+                       "offset":{"type": "integer"},
                     }
                 }
               }
@@ -52,7 +59,8 @@ class ELKHander(logging.Handler):
                             "level":     { "type": "text"  }, 
                             "host": {"type": "text"},
                             "message":      { "type": "text" }, 
-                            "path":{"type": "text"}
+                            "path":{"type": "text"},
+                             "offset":{"type": "integer"},
                           }
                     }
                 }
@@ -64,6 +72,7 @@ class ELKHander(logging.Handler):
     def send(self,lines):
         actions=[ ]
         for line in lines:
+            self.offset += 1
             actions.append({
                     "_index": self.index,
                     "_type": "_doc",
@@ -72,7 +81,8 @@ class ELKHander(logging.Handler):
                         "host":line.get('host',self.hostName),
                         "message":line.get('message'),
                         '@timestamp':line.get('@timestamp'),
-                        "path":line.get('path')
+                        "path":line.get('path'),
+                        "offset":self.offset,
                     }
             })
         helpers.bulk(self.es, actions)
