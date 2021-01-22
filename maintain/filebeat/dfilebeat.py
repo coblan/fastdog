@@ -92,7 +92,7 @@ def tail_file(path,self):
     start_now = datetime.datetime.now()
     record = False
     while p.poll() is None:
-        line = p.stdout.readline().decode('utf-8')
+        line = p.stdout.readline()
         line_temp = line.strip()
         if not record:
             now = datetime.datetime.now()
