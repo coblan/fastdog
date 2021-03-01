@@ -97,8 +97,14 @@ def click(driver,selector=None,eid=None):
         btn = driver.find_elements_by_css_selector(selector)[0]
     btn.click()
 
+def find_one_by_text(driver,selector,text):
+    for ii in driver.find_elements_by_css_selector(selector):
+        if text in ii.text:
+            return ii
+
 def clear_input(ele):
-    ele.send_keys(Keys.CONTROL + "a");
-    ele.send_keys(Keys.DELETE);    
+    ele.send_keys(Keys.CONTROL + "a")
+    ele.send_keys(Keys.DELETE)
+    
 
 
